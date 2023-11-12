@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       future: _todoService.getAllTodos(),
       builder: (BuildContext context, AsyncSnapshot<List<TodoItem>> snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          return const TodoListPage();
+          return TodoListPage();
         } else {
           return const CircularProgressIndicator();
         }
@@ -31,9 +31,11 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class TodoListPage extends StatelessWidget {
+  TodoListPage({super.key});
 
-class TodoListPage  extends StatelessWidget {
-  const TodoListPage ({super.key});
+  final TodoService _todoService = TodoService();
+  final TextEditingController _textEditingController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -45,25 +47,24 @@ class TodoListPage  extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           showDialog(
-            context: context, 
-            builder: (context) {
-              return AlertDialog(
-                title: const Text('Add Todo'),
-                  content: const TextField(),
-                    action: [
-                       ElevatedButton(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                    title: const Text('Add Todo'),
+                    content:
+                        const TextField(controller: _textEditingController),
+                    actions: [
+                      ElevatedButton(
                         child: const Text('Add'),
                         onPressed: () {
-
-                        }, 
+                          var todo = TodoItem(title, false);
+                        },
                       )
-                    ]
-              );
-            }
-          );
-        }
-        child: const Icon(Icon.add),
-        ),
-    )
+                    ]);
+              });
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
   }
 }
