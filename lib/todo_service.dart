@@ -9,7 +9,27 @@ class TodoService {
 
   Future<void> addItem(TodoItem todoItem) async {
     var box = await _box;
+    await box.add(todoItem);
+  }
 
-    await _box.add(todoItem);
+  Future<List<TodoItem>> getAllTodos() async {
+    var box = await _box;
+    return box.values.toList();
+  }
+
+  Future<void> deleteTodo(int index) async {
+    var box = await _box;
+    await box.delete(index);
+  }
+
+  Future<void> updateIsCompleted(TodoItem todoItem) async {
+    var box = await _box;
+    todoItem.isCompleted = !todoItem.isCompleted;
+  }
+
+  Future<void> updateIsCompleted(int index, TodoItem todoItem) async {
+    var box = await _box;
+    todoItem.isCompleted = !todoItem.isCompleted;
+    await box.putAt(index, todoItem);
   }
 }
