@@ -18,16 +18,18 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: FutureBuilder(
-      future: _todoService.getAllTodos(),
-      builder: (BuildContext context, AsyncSnapshot<List<TodoItem>> snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          return TodoListPage();
-        } else {
-          return const CircularProgressIndicator();
-        }
-      },
-    ));
+        debugShowCheckedModeBanner: false,
+        home: FutureBuilder(
+          future: _todoService.getAllTodos(),
+          builder:
+              (BuildContext context, AsyncSnapshot<List<TodoItem>> snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              return TodoListPage();
+            } else {
+              return const CircularProgressIndicator();
+            }
+          },
+        ));
   }
 }
 
@@ -44,7 +46,7 @@ class TodoListPage extends StatelessWidget {
         title: const Text("Hive TODO List"),
         backgroundColor: Colors.black,
       ),
-      body: ValueListenableBuilder<Box>(
+      body: ValueListenableBuilder(
         valueListenable: Hive.box<TodoItem>('todoBox').listenable(),
         builder: (context, Box<TodoItem> box, _) {
           return ListView.builder(
@@ -54,19 +56,18 @@ class TodoListPage extends StatelessWidget {
               return ListTile(
                 title: Text(todo!.title),
                 leading: Checkbox(
-                  value: todo.isCompleted, 
-                  onChanged: (val) {
-                    _todoService.updateIsCompleted(index, todo)
-                  }
-                  )
-              )
+                    value: todo.isCompleted,
+                    onChanged: (val) {
+                      _todoService.updateIsCompleted(index, todo);
+                    }),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () {
+                    _todoService.deleteTodo(index);
+                  },
+                ),
+              );
             },
-            child: Switch(
-              value: box.get('darkMode', defaultValue: false),
-              onChanged: (val) {
-                box.put('darkMode', val);
-              },
-            ),
           );
         },
       ),
@@ -77,8 +78,7 @@ class TodoListPage extends StatelessWidget {
               builder: (context) {
                 return AlertDialog(
                     title: const Text('Add Todo'),
-                    content: TextField(
-                      controller: _textEditingController),
+                    content: TextField(controller: _textEditingController),
                     actions: [
                       ElevatedButton(
                         child: const Text('Add'),
