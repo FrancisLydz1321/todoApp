@@ -22,11 +22,6 @@ class TodoService {
     await box.delete(index);
   }
 
-  Future<void> updateIsCompleted(TodoItem todoItem) async {
-    var box = await _box;
-    todoItem.isCompleted = !todoItem.isCompleted;
-  }
-
   Future<void> updateIsCompleted(int index, TodoItem todoItem) async {
     var box = await _box;
     todoItem.isCompleted = !todoItem.isCompleted;

@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        home: FutureBuilder(
+      home: FutureBuilder(
       future: _todoService.getAllTodos(),
       builder: (BuildContext context, AsyncSnapshot<List<TodoItem>> snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
@@ -41,8 +41,34 @@ class TodoListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Hive Todo List"),
+        title: const Text("Hive TODO List"),
         backgroundColor: Colors.black,
+      ),
+      body: ValueListenableBuilder<Box>(
+        valueListenable: Hive.box<TodoItem>('todoBox').listenable(),
+        builder: (context, Box<TodoItem> box, _) {
+          return ListView.builder(
+            itemCount: box.values.length,
+            itemBuilder: (context, index) {
+              var todo = box.getAt(index);
+              return ListTile(
+                title: Text(todo!.title),
+                leading: Checkbox(
+                  value: todo.isCompleted, 
+                  onChanged: (val) {
+                    _todoService.updateIsCompleted(index, todo)
+                  }
+                  )
+              )
+            },
+            child: Switch(
+              value: box.get('darkMode', defaultValue: false),
+              onChanged: (val) {
+                box.put('darkMode', val);
+              },
+            ),
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
@@ -51,13 +77,16 @@ class TodoListPage extends StatelessWidget {
               builder: (context) {
                 return AlertDialog(
                     title: const Text('Add Todo'),
-                    content:
-                        const TextField(controller: _textEditingController),
+                    content: TextField(
+                      controller: _textEditingController),
                     actions: [
                       ElevatedButton(
                         child: const Text('Add'),
-                        onPressed: () {
-                          var todo = TodoItem(title, false);
+                        onPressed: () async {
+                          var todo =
+                              TodoItem(_textEditingController.text, false);
+                          await _todoService.addItem(todo);
+                          Navigator.pop(context);
                         },
                       )
                     ]);
